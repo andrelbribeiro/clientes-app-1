@@ -1,7 +1,9 @@
 import streamlit as st
 import sqlite3
+
 ## Banco de Dados
 def conectar():
+
     return sqlite3.connect("database.db")
 
 def criar_tabela():
@@ -12,7 +14,7 @@ def criar_tabela():
     #Executando o comando no BD
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS cliente(
-    id INTEGER PRIMARY KEY AUTO INCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     sexo TEXT,
     email TEXT 
@@ -22,44 +24,46 @@ def criar_tabela():
     conexao.close()
 
 def inserir_cliente(nome, sexo, email):
-    conn = conectar()
-    cursor = conn.cursor()
+    conexao = conectar()
+    cursor = conexao.cursor()
     cursor.execute("""
     INSERT INTO cliente (nome, sexo, email)
     VALUES (?, ?, ?)
     """, (nome, sexo, email))
-    conn.commit()
-    conn.close()
+    conexao.commit()
+    conexao.close()
 
 def listar_clientes():
-    conn = conectar()
-    cursor = conn.cursor()
+    conexao = conectar()
+    cursor = conexao.cursor()
     cursor.execute("SELECT * FROM cliente")
     clientes = cursor.fetchall()
-    conn.close()
+    conexao.close()
     return clientes
 
 def atualizar_cliente(id, nome, sexo, email):
-    conn = conectar()
-    cursor = conn.cursor()
+    conexao = conectar()
+    cursor = conexao.cursor()
     cursor.execute("""
     UPDATE cliente SET nome=?, sexo=?, email=? WHERE id=?
     """, (nome, sexo, email, id))
-    conn.commit()
-    conn.close()
+    conexao.commit()
+    conexao.close()
 
 def deletar_cliente(id):
-    conn = conectar()
-    cursor = conn.cursor()
+    conexao = conectar()
+    cursor = conexao.cursor()
     cursor.execute("DELETE FROM cliente WHERE id=?", (id,))
-    conn.commit()
-    conn.close()
+    conexao.commit()
+    conexao.close()
 
 
 
 ##--Front-end--#
 
 st.title("Sistema de Vendas")
+
+criar_tabela()
 
 menu = ["Cadastrar","Listar / Editar / Excluir"]
 
@@ -69,15 +73,15 @@ escolha = st.sidebar.selectbox("Menu", menu)
 if escolha == "Cadastrar":
     st.subheader("Novo Cliente")
 
-with st.form(key="form_cliente"):
-    nome = st.text_input("Nome", max_chars=100)
-    sexo = st.selectbox("Sexo", ["Masculino", "Feminino", "Outro"])
-    email = st.text_input("Email")
-    submit = st.form_submit_button("Cadastrar")
+    with st.form(key="form_cliente"):
+        nome = st.text_input("Nome", max_chars=100)
+        sexo = st.selectbox("Sexo", ["Masculino", "Feminino", "Outro"])
+        email = st.text_input("Email")
+        submit = st.form_submit_button("Cadastrar")
 
-if submit:
-    inserir_cliente(nome, sexo, email)
-    st.success(f"Cliente {nome} cadastrado com sucesso!")
+    if submit:
+        inserir_cliente(nome, sexo, email)
+        st.success(f"Cliente {nome} cadastrado com sucesso!")
 
 # LISTAR / EDITAR / EXCLUIR
 elif escolha == "Listar / Editar / Excluir":
